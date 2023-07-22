@@ -13,6 +13,7 @@ namespace kys
         public Pen pen = new Pen(Color.Black, 5);
 
         Bitmap surface;
+
         public Form1()
         {
             InitializeComponent();
