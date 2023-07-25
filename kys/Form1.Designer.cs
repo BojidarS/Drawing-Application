@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             canvas = new Panel();
+            rectanglebtn = new Button();
             savebtn = new Button();
             colorselector = new PictureBox();
             sizebar = new NumericUpDown();
@@ -42,6 +43,7 @@
             // 
             // canvas
             // 
+            canvas.Controls.Add(rectanglebtn);
             canvas.Controls.Add(savebtn);
             canvas.Controls.Add(colorselector);
             canvas.Controls.Add(sizebar);
@@ -55,6 +57,17 @@
             canvas.TabIndex = 0;
             canvas.MouseDown += canvas_MouseDown;
             canvas.MouseMove += canvas_MouseMove;
+            canvas.MouseUp += canvas_MouseUp;
+            // 
+            // rectanglebtn
+            // 
+            rectanglebtn.Location = new Point(9, 253);
+            rectanglebtn.Name = "rectanglebtn";
+            rectanglebtn.Size = new Size(75, 23);
+            rectanglebtn.TabIndex = 6;
+            rectanglebtn.Text = "Rectangle";
+            rectanglebtn.UseVisualStyleBackColor = true;
+            rectanglebtn.Click += rectanglebtn_Click;
             // 
             // savebtn
             // 
@@ -140,5 +153,6 @@
         private PictureBox colorselector;
         private NumericUpDown sizebar;
         private Button savebtn;
+        private Button rectanglebtn;
     }
 }

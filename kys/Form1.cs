@@ -1,16 +1,24 @@
+using Draw;
+
 namespace kys
 {
     public partial class Form1 : Form
     {
-
+        public Point starting = new Point();
         public Point current = new Point();
         public Point old = new Point();
 
+        RectangleForm rectanglepos;
+        Rectangle rect;
+        Service service;
+        
         public Graphics g;
 
         public Graphics graph;
 
         public Pen pen = new Pen(Color.Black, 5);
+        
+        bool rectangleSelected = false;
 
         Bitmap surface;
 
@@ -41,18 +49,24 @@ namespace kys
 
         private void canvas_MouseDown(object sender, MouseEventArgs e)
         {
-            old = e.Location;
+            old = e.Location; // dont touch
+            starting = e.Location;
         }
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left && rectangleSelected == false)
             {
                 current = e.Location;
                 g.DrawLine(pen, old, current);
                 graph.DrawLine(pen, old, current);
 
                 old = current;
+            }
+            else if(e.Button == MouseButtons.Left && rectangleSelected == true)
+            {
+                current = e.Location;
+                
             }
         }
 
@@ -64,6 +78,7 @@ namespace kys
         private void brushbtn_Click(object sender, EventArgs e)
         {
             pen.Color = colorselector.BackColor;
+            rectangleSelected = false;
         }
 
         private void colorselector_Click(object sender, EventArgs e)
@@ -101,5 +116,32 @@ namespace kys
         {
             pen.Width = (float)sizebar.Value;
         }
+
+        private void rectanglebtn_Click(object sender, EventArgs e)
+        {
+            rectangleSelected = true;
+
+        }
+
+        private void canvas_MouseUp(object sender, MouseEventArgs e)
+        {
+            
+            if(rectangleSelected == true)
+            {
+                g.DrawRectangle(pen, GetRecta() );
+                graph.DrawRectangle(pen,GetRecta() );
+            }
+            
+        }
+        private Rectangle GetRecta()
+        {
+            rect = new Rectangle();
+            rect.X = Math.Min(starting.X, current.X);
+            rect.Y = Math.Min(starting.Y, current.Y);
+            rect.Width = Math.Abs(starting.X - current.X);
+            rect.Height = Math.Abs(starting.Y - current.Y);
+            return rect;
+        }
+
     }
 }
