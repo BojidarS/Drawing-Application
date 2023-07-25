@@ -128,6 +128,7 @@ namespace kys
             
             if(rectangleSelected == true)
             {
+                pen.Color = colorselector.BackColor;
                 g.DrawRectangle(pen, GetRecta() );
                 graph.DrawRectangle(pen,GetRecta() );
             }
