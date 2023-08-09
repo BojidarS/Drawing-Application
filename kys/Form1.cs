@@ -16,20 +16,21 @@ namespace kys
         public Point startingPoint = new Point();
         public Point currentPoint = new Point();
         public Point oldPoint = new Point();
-
+        string penColor;
         string selectedShape;
 
         public Graphics g;
 
         public Graphics graph;
 
-        public Pen pen = new Pen(Color.Black, 5);
+        public Pen myPen = new Pen(Color.Black, 5);
 
         bool shapeToolSelected = false;
 
         Bitmap surface;
 
         DrawingService drawingService;
+        FileService fileService;
 
         bool selectToolSelected = false;
 
@@ -40,7 +41,7 @@ namespace kys
             g = canvas.CreateGraphics();
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-            pen.SetLineCap(System.Drawing.Drawing2D.LineCap.Round, System.Drawing.Drawing2D.LineCap.Round, System.Drawing.Drawing2D.DashCap.Round);
+            myPen.SetLineCap(System.Drawing.Drawing2D.LineCap.Round, System.Drawing.Drawing2D.LineCap.Round, System.Drawing.Drawing2D.DashCap.Round);
 
             surface = new Bitmap(canvas.Width, canvas.Height);
 
@@ -49,9 +50,10 @@ namespace kys
             canvas.BackgroundImage = surface;
             canvas.BackgroundImageLayout = ImageLayout.None;
 
-            pen.Width = (float)sizebar.Value;
+            myPen.Width = (float)sizebar.Value;
             shapes = new List<BaseShape>();
             drawingService = new DrawingService();
+            fileService = new FileService();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -80,8 +82,8 @@ namespace kys
             if (e.Button == MouseButtons.Left && shapeToolSelected == false && selectToolSelected == false)
             {
                 currentPoint = e.Location;
-                g.DrawLine(pen, oldPoint, currentPoint);
-                graph.DrawLine(pen, oldPoint, currentPoint);
+                g.DrawLine(myPen, oldPoint, currentPoint);
+                graph.DrawLine(myPen, oldPoint, currentPoint);
 
                 oldPoint = currentPoint;
             }
@@ -93,13 +95,13 @@ namespace kys
 
         private void eraserbtn_Click(object sender, EventArgs e)
         {
-            pen.Color = canvas.BackColor;
+            myPen.Color = canvas.BackColor;
             shapeToolSelected = false;
         }
 
         private void brushbtn_Click(object sender, EventArgs e)
         {
-            pen.Color = colorselector.BackColor;
+            myPen.Color = colorselector.BackColor;
             shapeToolSelected = false;
         }
 
@@ -108,8 +110,9 @@ namespace kys
             ColorDialog cd = new ColorDialog();
             if (cd.ShowDialog() == DialogResult.OK)
             {
-                pen.Color = cd.Color;
+                myPen.Color = cd.Color;
                 colorselector.BackColor = cd.Color;
+                penColor = myPen.Color.ToString();
             }
         }
 
@@ -117,11 +120,12 @@ namespace kys
         {
             graph.Clear(canvas.BackColor);
             canvas.Invalidate();
+            shapes.Clear();
         }
 
         private void savebtn_Click(object sender, EventArgs e)
         {
-            string shapesfigure = JsonSerializer.Serialize(shapes);
+            
 
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Png Files (*png) | *.png|Json files (*.json) | *.json";
@@ -138,9 +142,7 @@ namespace kys
                         surface.Save(sfd.FileName, System.Drawing.Imaging.ImageFormat.Png);
                         break;
                     case 2:
-                        //System.IO.File.Copy(@"D:\config.json", sfd.FileName, true);
-                        //File.WriteAllText(System.IO.Path.GetDirectoryName(sfd.FileName), shapesfigure);
-                        File.WriteAllText(stringPath, shapesfigure);
+                        fileService.SaveFile(shapes, stringPath);
                         break;
                 }
             }
@@ -148,7 +150,7 @@ namespace kys
 
         private void pbsize_Change(object sender, EventArgs e)
         {
-            pen.Width = (float)sizebar.Value;
+            myPen.Width = (float)sizebar.Value;
         }
 
         private void rectanglebtn_Click(object sender, EventArgs e)
@@ -163,18 +165,17 @@ namespace kys
             {
                 //var rectangle = new RectangleShape(startingPoint, oldPoint, pen, g, graph, selectedShape);
                 //rectangle.DrawShape(startingPoint, oldPoint); //service
-                var rectangle = drawingService.DrawRectangle(startingPoint, oldPoint, pen, g, graph, selectedShape);
+                var rectangle = drawingService.DrawRectangle(startingPoint, oldPoint, myPen, g, graph, selectedShape, penColor);
                 shapes.Add(rectangle);
             }
             else if (selectedShape == "Circle" && shapeToolSelected == true)
             {
-                CircleShape circle = drawingService.DrawCircle(startingPoint, oldPoint, pen, g, graph, selectedShape);
+                CircleShape circle = drawingService.DrawCircle(startingPoint, oldPoint, myPen, g, graph, selectedShape, penColor);
                 shapes.Add(circle);
             }
             else if (selectedShape == "Line" && shapeToolSelected == true)
             {
-                var line = new LineShape(startingPoint, oldPoint, pen, g, graph, selectedShape);
-                line.DrawShape(startingPoint, oldPoint);//service
+                LineShape line = drawingService.DrawLine(startingPoint, oldPoint, myPen, g, graph, selectedShape, penColor);
                 shapes.Add(line);
             }
         }
@@ -200,23 +201,20 @@ namespace kys
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                string filePath = dialog.FileName;
-                string jsonString = File.ReadAllText(filePath);
-                var shape = JsonSerializer.Deserialize<List<BaseShape>>(jsonString);
-                foreach (var item in shape)
+                var load = fileService.LoadFile(dialog.FileName);
+                foreach (var item in load)
                 {
                     switch (item.ShapeName)
                     {
                         case "Rectangle":
-                            var rectangle = new RectangleShape(item.StartPoint, item.EndPoint, pen, g, graph, item.ShapeName);
-                            rectangle.DrawShape(item.StartPoint, item.EndPoint);
+                            var rectangle = drawingService.DrawRectangle(item.StartPoint, item.EndPoint, myPen, g, graph, item.ShapeName, item.PenColor);
                             break;
                         case "Circle":
-                            var circle = new CircleShape(item.StartPoint, item.EndPoint, pen, g, graph, item.ShapeName);
+                            var circle = new CircleShape(item.StartPoint, item.EndPoint, myPen, g, graph, item.ShapeName, item.PenColor);
                             circle.DrawShape(item.StartPoint, item.EndPoint);
                             break;
                         case "Line":
-                            var line = new LineShape(item.StartPoint, item.EndPoint, pen, g, graph, item.ShapeName);
+                            var line = new LineShape(item.StartPoint, item.EndPoint, myPen, g, graph, item.ShapeName, item.PenColor);
                             line.DrawShape(item.StartPoint, item.EndPoint);
                             break;
                     }

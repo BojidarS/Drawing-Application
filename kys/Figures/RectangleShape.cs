@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Draw.Figures
@@ -14,13 +15,26 @@ namespace Draw.Figures
     public class RectangleShape:BaseShape
     {
         [JsonConstructor]
-        public RectangleShape(Point startPoint, Point endPoint, Pen pen, Graphics g, Graphics graph, string shapeName) : base(startPoint, endPoint, shapeName)
+        public RectangleShape(Point startPoint, Point endPoint, Pen pen, Graphics g, Graphics graph, string shapeName, string penColor) : base(startPoint, endPoint, shapeName, penColor)
         {
             StartPoint = startPoint;
             EndPoint = endPoint;
             CurrentPen = pen;
             DrawingGraphics = g;
             CanvasGraphics = graph;
+            var startIndex = penColor.IndexOf('[')+1;
+            var endIndex = penColor.IndexOf(']');
+            var toRead = (endIndex - startIndex);
+            var actualPenColor = penColor.Substring(startIndex, toRead);
+            if (Regex.IsMatch(actualPenColor, @"^[a-zA-Z]+$") == true)
+            {
+                CurrentPen.Color = System.Drawing.Color.FromName(actualPenColor);
+            }
+            else
+            {
+                var arbgColor = CurrentPen.Color.ToArgb();
+                CurrentPen.Color = System.Drawing.Color.FromArgb(arbgColor);
+            }
             
         }
         public Graphics DrawingGraphics { get; set; }
@@ -28,7 +42,8 @@ namespace Draw.Figures
         public Pen CurrentPen { get; set; }
         public  Point StartPoint {get; set;}
         public Point EndPoint { get; set; }
-
+        public string PenColor { get; set; }
+        public Color LoadedColor { get; set; }
         public void DrawShape(Point startPoint, Point endPoint)
         {
             
