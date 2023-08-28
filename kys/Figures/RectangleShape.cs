@@ -15,11 +15,12 @@ namespace Draw.Figures
     public class RectangleShape:BaseShape
     {
         [JsonConstructor]
-        public RectangleShape(Point startPoint, Point endPoint, Pen pen, Graphics g, Graphics graph, string shapeName, string penColor) : base(startPoint, endPoint, shapeName, penColor)
+        public RectangleShape(Point startPoint, Point endPoint, Graphics g, Graphics graph, string shapeName, string penColor, float penWidth) : base(startPoint, endPoint, shapeName, penColor, penWidth)
         {
+            CurrentPen = new Pen(Color.Black, 5);
+            CurrentPen.Width = penWidth;
             StartPoint = startPoint;
             EndPoint = endPoint;
-            CurrentPen = pen;
             DrawingGraphics = g;
             CanvasGraphics = graph;
             var startIndex = penColor.IndexOf('[')+1;
@@ -32,10 +33,19 @@ namespace Draw.Figures
             }
             else
             {
-                var arbgColor = CurrentPen.Color.ToArgb();
-                CurrentPen.Color = System.Drawing.Color.FromArgb(arbgColor);
+                string[] argb;
+                List<int> converted = new List<int>();
+                argb = Regex.Split(actualPenColor, @"\D+");
+
+                for (int i = 0; i < argb.Length; i++)
+                {
+                    if(i > 0)
+                    {
+                        converted.Add(Convert.ToInt32(argb[i]));
+                    }
+                }
+                CurrentPen.Color = System.Drawing.Color.FromArgb(converted[0], converted[1], converted[2], converted[3]);
             }
-            
         }
         public Graphics DrawingGraphics { get; set; }
         public Graphics CanvasGraphics { get; set; }

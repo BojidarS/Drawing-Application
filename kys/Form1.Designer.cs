@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             canvas = new Panel();
+            delete_btn = new Button();
+            move_btn = new Button();
             select_btn = new Button();
             load_btn = new Button();
             line_btn = new Button();
@@ -40,6 +42,8 @@
             eraserbtn = new Button();
             brushbtn = new Button();
             clearbtn = new Button();
+            x_mouse_label = new Label();
+            y_mouse_label = new Label();
             canvas.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)colorselector).BeginInit();
             ((System.ComponentModel.ISupportInitialize)sizebar).BeginInit();
@@ -47,6 +51,10 @@
             // 
             // canvas
             // 
+            canvas.Controls.Add(y_mouse_label);
+            canvas.Controls.Add(x_mouse_label);
+            canvas.Controls.Add(delete_btn);
+            canvas.Controls.Add(move_btn);
             canvas.Controls.Add(select_btn);
             canvas.Controls.Add(load_btn);
             canvas.Controls.Add(line_btn);
@@ -66,6 +74,26 @@
             canvas.MouseDown += canvas_MouseDown;
             canvas.MouseMove += canvas_MouseMove;
             canvas.MouseUp += canvas_MouseUp;
+            // 
+            // delete_btn
+            // 
+            delete_btn.Location = new Point(9, 424);
+            delete_btn.Name = "delete_btn";
+            delete_btn.Size = new Size(75, 23);
+            delete_btn.TabIndex = 12;
+            delete_btn.Text = "Delete";
+            delete_btn.UseVisualStyleBackColor = true;
+            delete_btn.Click += delete_btn_Click;
+            // 
+            // move_btn
+            // 
+            move_btn.Location = new Point(9, 396);
+            move_btn.Name = "move_btn";
+            move_btn.Size = new Size(75, 23);
+            move_btn.TabIndex = 11;
+            move_btn.Text = "Move";
+            move_btn.UseVisualStyleBackColor = true;
+            move_btn.Click += move_btn_Click;
             // 
             // select_btn
             // 
@@ -177,6 +205,24 @@
             clearbtn.UseVisualStyleBackColor = true;
             clearbtn.Click += clearbtn_Click;
             // 
+            // x_mouse_label
+            // 
+            x_mouse_label.AutoSize = true;
+            x_mouse_label.Location = new Point(699, 12);
+            x_mouse_label.Name = "x_mouse_label";
+            x_mouse_label.Size = new Size(38, 15);
+            x_mouse_label.TabIndex = 13;
+            x_mouse_label.Text = "label1";
+            // 
+            // y_mouse_label
+            // 
+            y_mouse_label.AutoSize = true;
+            y_mouse_label.Location = new Point(743, 11);
+            y_mouse_label.Name = "y_mouse_label";
+            y_mouse_label.Size = new Size(38, 15);
+            y_mouse_label.TabIndex = 14;
+            y_mouse_label.Text = "label1";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -187,6 +233,7 @@
             Text = "Drawing Application";
             Load += Form1_Load;
             canvas.ResumeLayout(false);
+            canvas.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)colorselector).EndInit();
             ((System.ComponentModel.ISupportInitialize)sizebar).EndInit();
             ResumeLayout(false);
@@ -206,5 +253,9 @@
         private Button line_btn;
         private Button load_btn;
         private Button select_btn;
+        private Button move_btn;
+        private Button delete_btn;
+        private Label y_mouse_label;
+        private Label x_mouse_label;
     }
 }
